@@ -88,3 +88,9 @@ if( "$ENV{AF_GUI}" STREQUAL "YES" )
 else()
 	message("\nWARNING! Building without GUI.\n")
 endif()
+
+option(DISABLE_TESTING "Disable build tests for Unix" OFF)
+
+if(UNIX AND NOT DISABLE_TESTING)
+	enable_testing()
+endif()
