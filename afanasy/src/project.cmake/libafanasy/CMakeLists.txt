@@ -18,3 +18,9 @@ add_executable(test_msg_allocatebuffer_simple_boundary
 )
 target_link_libraries(test_msg_allocatebuffer_simple_boundary afanasy)
 add_test(NAME AllocateBufferSimpleBoundary COMMAND test_msg_allocatebuffer_simple_boundary)
+
+add_executable(test_msg_allocatebuffer_negative_copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../libafanasy/tests/test_msg_allocatebuffer_negative_copy.cpp"
+)
+target_link_libraries(test_msg_allocatebuffer_negative_copy afanasy)
+add_test(NAME MsgMemoryTest COMMAND test_msg_allocatebuffer_negative_copy)
