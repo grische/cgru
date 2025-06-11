@@ -146,6 +146,15 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 				return false;
 			}
 
+			// Check that the offset is within bounds of the old buffer
+			if (i_copy_offset >= old_buffer_size)
+			{
+				AFERRAR("Msg::allocateBuffer: copy offset is out of bounds (%d >= %d)", i_copy_offset,
+					old_buffer_size)
+				setInvalid();
+				return false;
+			}
+
 			// Check if there's enough data to copy from the old buffer
 			if (i_copy_offset > old_buffer_size - i_copy_len)
 			{
