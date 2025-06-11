@@ -403,7 +403,18 @@ void Msg::setHeader( int i_type, int i_size, int i_offset, int i_bytes)
 		else
 		{
 			if(( i_offset > 0 ) && ( i_bytes > 0 ))
+			{
+				// Check for negative length - bytes must be greater than offset
+				if (i_bytes <= i_offset)
+				{
+					AFERRAR(
+						"Msg::setHeader: offset (%d) >= bytes (%d). Would result in zero or negative bytes to move",
+						i_bytes, i_offset)
+					setInvalid();
+					return;
+				}
 				memmove( m_buffer + af::Msg::SizeHeader, m_buffer + i_offset, i_bytes - i_offset);
+			}
 		}
 	}
 
