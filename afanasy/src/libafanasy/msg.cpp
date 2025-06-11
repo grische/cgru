@@ -132,8 +132,19 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 
 	if (old_buffer != nullptr)
 	{
-//printf("Copying old buffer: offset=%d size=%d\n", i_copy_offset, i_copy_len);
-		if( i_copy_len > 0) memcpy( m_data, old_buffer + i_copy_offset, i_copy_len);
+		if (i_copy_len > 0)
+		{
+			if (m_data_maxsize < i_copy_len)
+			{
+				AFERRAR(
+					"Msg::allocateBuffer: can't copy %d bytes from old buffer to new one, as new buffer size "
+					"is only %d bytes.",
+					i_copy_len, m_data_maxsize)
+				setInvalid();
+				return false;
+			}
+			memcpy(m_data, old_buffer + i_copy_offset, i_copy_len);
+		}
 		delete [] old_buffer;
 	}
 
