@@ -413,6 +413,14 @@ void Msg::setHeader( int i_type, int i_size, int i_offset, int i_bytes)
 					setInvalid();
 					return;
 				}
+				// Check if offset is within bounds of the buffer
+				if (i_offset >= m_buffer_size)
+				{
+					AFERRAR("Msg::setHeader: i_offset out of bounds (%d >= %d)", i_offset, m_buffer_size)
+					setInvalid();
+					return;
+				}
+
 				memmove( m_buffer + af::Msg::SizeHeader, m_buffer + i_offset, i_bytes - i_offset);
 			}
 		}
