@@ -103,6 +103,18 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 		setInvalid();
 		return false;
 	}
+	if (i_copy_len < 0)
+	{
+		AFERRAR("Msg::allocateBuffer: i_copy_len ( %d ) negative", i_copy_len)
+		setInvalid();
+		return false;
+	}
+	if (i_copy_offset < 0)
+	{
+		AFERRAR("Msg::allocateBuffer: i_copy_offset ( %d ) negative", i_copy_offset)
+		setInvalid();
+		return false;
+	}
 
 	char * old_buffer = m_buffer;
 	m_buffer_size = i_size;
