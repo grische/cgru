@@ -96,7 +96,7 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 {
 	if( m_type == Msg::TInvalid) return false;
 
-    if( i_size < 0 || i_size > Msg::SizeBufferLimit)
+	if( i_size < 0 || i_size > Msg::SizeBufferLimit)
 	{
 		AFERRAR("Msg::allocateBuffer: size > Msg::SizeBufferLimit ( %d > %d)", i_size, Msg::SizeBufferLimit)
 		setInvalid();
@@ -337,7 +337,7 @@ void Msg::setHeader( int i_type, int i_size, int i_offset, int i_bytes)
 	m_version = af::Msg::Version;
 	m_type    = i_type;
 	m_int32   = i_size;
-	
+
 	checkValidness();
 
 	if( m_type >= Msg::TDATA)
@@ -350,7 +350,7 @@ void Msg::setHeader( int i_type, int i_size, int i_offset, int i_bytes)
 		else
 		{
 			if(( i_offset > 0 ) && ( i_bytes > 0 ))
-				memmove( m_buffer + af::Msg::SizeHeader, m_buffer + i_offset, i_bytes - i_offset); 
+				memmove( m_buffer + af::Msg::SizeHeader, m_buffer + i_offset, i_bytes - i_offset);
 		}
 	}
 
