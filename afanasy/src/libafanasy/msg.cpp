@@ -143,6 +143,16 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 				setInvalid();
 				return false;
 			}
+
+			// Check for integer overflow in offset + length calculation
+			if (i_copy_offset > 0 && i_copy_offset > INT_MAX - i_copy_len)
+			{
+				AFERRAR("Msg::allocateBuffer: i_copy_offset + i_copy_len would overflow (%d + %d)",
+					i_copy_offset, i_copy_len)
+				setInvalid();
+				return false;
+			}
+
 			memcpy(m_data, old_buffer + i_copy_offset, i_copy_len);
 		}
 		delete [] old_buffer;
