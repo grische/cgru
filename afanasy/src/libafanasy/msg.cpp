@@ -117,6 +117,8 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 	}
 
 	char * old_buffer = m_buffer;
+	const int old_buffer_size = m_buffer_size;
+
 	m_buffer_size = i_size;
 	AFINFA("Msg::allocateBuffer(%s): trying %d bytes ( %d written at %p)", TNAMES[m_type], i_size, m_writtensize, old_buffer)
 	m_buffer = new char[m_buffer_size];
@@ -140,6 +142,15 @@ bool Msg::allocateBuffer( int i_size, int i_copy_len, int i_copy_offset)
 					"Msg::allocateBuffer: can't copy %d bytes from old buffer to new one, as new buffer size "
 					"is only %d bytes.",
 					i_copy_len, m_data_maxsize)
+				setInvalid();
+				return false;
+			}
+
+			// Check if there's enough data to copy from the old buffer
+			if (i_copy_offset > old_buffer_size - i_copy_len)
+			{
+				AFERRAR("Msg::allocateBuffer: copy would read past the end of the old buffer (%d + %d > %d)",
+					i_copy_offset, i_copy_len, old_buffer_size)
 				setInvalid();
 				return false;
 			}
