@@ -239,6 +239,49 @@ int buffer_size_valid_large_test()
 	return 0;
 }
 
+int buffer_overflow_test()
+{
+	std::cout << "Testing buffer overflow vulnerability in Msg::setHeader\n";
+
+	af::Msg msg(af::Msg::TNULL, 0);
+
+	// Set initial data to ensure we have a buffer of known size
+	std::string initial_data(100, 'A');
+	if (!msg.setData(initial_data.size(), initial_data.c_str(), af::Msg::TDATA))
+	{
+		std::cout << "Failed to set initial data\n";
+		return 1;
+	}
+
+	// The key vulnerability is in setHeader when using memmove:
+	// If (i_bytes - i_offset) exceeds the buffer capacity, we get memory corruption
+
+	// Keep size small to avoid buffer reallocation path
+	int small_size = 50;
+	// Small positive offset
+	int offset = 10;
+	// Calculate bytes value to make (bytes - offset) exceed buffer capacity
+	// This would copy more data than the buffer can hold
+	int bytes = af::Msg::SizeBuffer - af::Msg::SizeHeader + offset + 100;
+
+	std::cout << "Buffer size: " << af::Msg::SizeBuffer << std::endl;
+	std::cout << "Setting header with parameters that would cause buffer overflow...\n";
+	std::cout << "size: " << small_size << ", offset: " << offset << ", bytes: " << bytes << std::endl;
+	std::cout << "Copy bytes: " << (bytes - offset)
+			  << ", Available space: " << (af::Msg::SizeBuffer - af::Msg::SizeHeader) << std::endl;
+
+	// This will overflow the buffer in the memmove operation
+	msg.setHeader(af::Msg::TDATA, small_size, offset, bytes);
+
+	if (msg.type() != af::Msg::TInvalid)
+	{
+		std::cout << "ERROR: Buffer overflow wasn't detected!\n";
+		return 2;
+	}
+	std::cout << "Buffer overflow test passed: message was properly invalidated\n";
+	return 0;
+}
+
 int main()
 {
 	std::cout << "Running comprehensive buffer vulnerability tests...\n\n";
@@ -290,6 +333,13 @@ int main()
 	{
 		const int result = buffer_size_valid_large_test();
 		std::cout << "buffer_size_valid_large_test returned: " << result << "\n\n";
+		global_result += result;
+	}
+
+	// Test 7: Test for buffer overflow vulnerability in setHeader
+	{
+		const int result = buffer_overflow_test();
+		std::cout << "buffer_overflow_test returned: " << result << "\n\n";
 		global_result += result;
 	}
 
