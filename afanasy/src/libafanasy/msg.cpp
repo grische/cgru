@@ -421,6 +421,15 @@ void Msg::setHeader( int i_type, int i_size, int i_offset, int i_bytes)
 					return;
 				}
 
+				// Check if we have enough data to copy (offset + length fits within buffer)
+				if ((i_bytes - i_offset) > m_buffer_size - Msg::SizeHeader)
+				{
+					AFERRAR("Msg::setHeader: copy would exceed buffer size (%d > %d)", (i_bytes - i_offset),
+						m_buffer_size - Msg::SizeHeader)
+					setInvalid();
+					return;
+				}
+
 				memmove( m_buffer + af::Msg::SizeHeader, m_buffer + i_offset, i_bytes - i_offset);
 			}
 		}
