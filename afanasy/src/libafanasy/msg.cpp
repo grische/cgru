@@ -53,6 +53,12 @@ Msg::Msg( const char * rawData, int rawDataLen):
 	// We will only read node parameters to constuct af::Af based classes.
 	m_writing( false)
 {
+	if (rawData == nullptr && rawDataLen != 0)
+	{
+		AFERRAR("Msg::Msg: rawData is nullptr but rawDataLen is %d", rawDataLen);
+		setInvalid();
+		return;
+	}
 	if( rawDataLen < Msg::SizeHeader ) // Check minimum message size.
 	{
 		AFERRAR("Msg::Msg: rawDataLen < Msg::SizeHeader (%d<%d).", rawDataLen, Msg::SizeHeader)
