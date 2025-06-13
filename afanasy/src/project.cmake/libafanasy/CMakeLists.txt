@@ -24,3 +24,9 @@ add_executable(test_msg_allocatebuffer_negative_copy
 )
 target_link_libraries(test_msg_allocatebuffer_negative_copy afanasy)
 add_test(NAME MsgMemoryTest COMMAND test_msg_allocatebuffer_negative_copy)
+
+add_executable(test_processheader_overflow
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../libafanasy/tests/test_processheader_overflow.cpp"
+)
+target_link_libraries(test_processheader_overflow afanasy)
+add_test(NAME ProcessHeaderOverflow COMMAND test_processheader_overflow)
