@@ -143,46 +143,46 @@ int af::processHeader( af::Msg * io_msg, int i_bytes)
 	// Simple header for JSON (used for example in python api and afcmd)
 	if( strncasecmp("AFANASY", buffer, 7) == 0 )
 	{
-		//writedata( 1, buffer+offset, i_bytes);printf("\n");
 		offset += 7;
-		int size;
-		int num = sscanf( buffer + offset, "%d", &size);
-		//printf("\n sscanf=%d\n",num);
-		if( num == 1 )
-		{
-			while( ++offset < i_bytes )
-			{
-				if( strncmp( buffer+offset, "JSON", 4) == 0)
-				{
-					offset += 4;
-					while( offset < i_bytes )
-					{
-						if( buffer[offset] == '{' )
-						{
-							break;
-						}
-						else
-						{
-							offset++;
-							//printf("FOUND: size=%d Offset=%d:\n", size, offset);
-							//write(1, buffer, offset);
-							//write(1, buffer+offset, i_bytes - offset);
-							//write(1,"\n",1);
-//							io_msg->setHeader( af::Msg::TJSON, size, offset, i_bytes);
-							//return false;
-							//io_msg->stdOutData();
-//							return offset;
-						}
-					}
-					io_msg->setHeader( af::Msg::TJSON, size, offset, i_bytes);
-					return offset;
-				}
-			}
 
-			// Header not recongnized:
-			AFERROR("JSON message header was not recongnized.")
+		// create small temporary buffer from buffer as it can be missing null terminator required by strtoul
+		char buffer_header[Msg::SizeHeader + 1];
+		memcpy(buffer_header, buffer + offset, Msg::SizeHeader);
+		buffer_header[Msg::SizeHeader] = '\0'; // ensure null-termination
+
+		char *endptr = nullptr;
+		errno = 0; // reset errno before calling strtoul
+		unsigned long parsed_size = strtoul(buffer_header, &endptr, 10);
+
+		// Check for errors: empty string, no digits found, overflow, or other errors
+		if (errno != 0 || endptr == buffer_header || parsed_size > INT_MAX)
+		{
+			// Header not recognized:
+			AFERRAR("af::processHeader: failed to parse header size from: %s", buffer_header)
 			return -1;
 		}
+
+		const int size = static_cast<int>(parsed_size);
+
+		while (++offset < i_bytes)
+		{
+			if (strncmp(buffer + offset, "JSON", 4) == 0)
+			{
+				offset += 4;
+				while (offset < i_bytes)
+				{
+					if (buffer[offset] == '{')
+						break;
+					offset++;
+				}
+				io_msg->setHeader(af::Msg::TJSON, size, offset, i_bytes);
+				return offset;
+			}
+		}
+
+		// Header not recongnized:
+		AFERROR("JSON message header was not recongnized.")
+		return -1;
 	}
 
 	if( strncmp( buffer, "GET", 3) == 0 )
@@ -974,4 +974,3 @@ void af::rw_Int32_Vect( std::vector<int32_t> &vect, Msg * msg)
 		}
 	}
 }
-
