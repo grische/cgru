@@ -1205,7 +1205,15 @@ int BlockData::calcWeight() const
 	int weight = sizeof(BlockData);
 	if (isNotNumeric() && m_tasks_data)
 		for (int t = 0; t < m_tasks_num; t++)
+		{
+			if (m_tasks_data[t] == nullptr)
+			{
+				AF_WARN << __func__ << ": Null task data found at index " << t << " in block " << m_block_num;
+				weight += sizeof(TaskData);
+				continue;
+			}
 			weight += m_tasks_data[t]->calcWeight();
+		}
 
 	weight += weigh(m_service);
 	weight += weigh(m_parser);
